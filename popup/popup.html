@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Privacy Tracker Detector</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+  <header>
+    <div class="title-block">
+      <span class="logo">&#128737;</span>
+      <h1>Privacy Tracker Detector</h1>
+    </div>
+    <div id="score-container">
+      <div id="score-value">--</div>
+      <div id="score-label">Privacy Score</div>
+    </div>
+  </header>
+
+  <nav id="tabs">
+    <button class="tab-btn active" data-tab="tab-third">Terceiros</button>
+    <button class="tab-btn" data-tab="tab-cookies">Cookies</button>
+    <button class="tab-btn" data-tab="tab-storage">Storage</button>
+    <button class="tab-btn" data-tab="tab-fp">Fingerprint</button>
+    <button class="tab-btn" data-tab="tab-hijack">Hijacking</button>
+  </nav>
+
+  <main>
+    <section id="tab-third" class="tab-content active">
+      <h2>Domínios de Terceiros</h2>
+      <div id="third-list"></div>
+    </section>
+
+    <section id="tab-cookies" class="tab-content">
+      <h2>Cookies</h2>
+      <div id="cookie-summary"></div>
+      <div id="cookie-list"></div>
+    </section>
+
+    <section id="tab-storage" class="tab-content">
+      <h2>Web Storage &amp; IndexedDB</h2>
+      <div id="storage-list"></div>
+    </section>
+
+    <section id="tab-fp" class="tab-content">
+      <h2>Browser Fingerprinting</h2>
+      <div id="fp-list"></div>
+      <div id="score-breakdown"></div>
+    </section>
+
+    <section id="tab-hijack" class="tab-content">
+      <h2>Ameaças de Hijacking</h2>
+      <div id="hijack-list"></div>
+    </section>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>
