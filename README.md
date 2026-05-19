@@ -1,87 +1,94 @@
 # Privacy Tracker Detector
 
-Extensão Firefox (WebExtension) para detecção e visualização de ameaças à privacidade e rastreamento na navegação web.
+O **Privacy Tracker Detector** é uma extensão para Firefox criada para ajudar o usuário a entender melhor o que acontece nos bastidores enquanto navega pela web.
 
-## Funcionalidades
+A ideia da ferramenta é simples: ao acessar uma página, a extensão observa conexões externas, cookies, armazenamento local, sinais de fingerprinting e possíveis comportamentos suspeitos. Depois, essas informações são organizadas em uma interface visual, permitindo avaliar o quanto aquele site pode estar rastreando o usuário.
 
-| Módulo | Descrição |
+## O que a extensão analisa
+
+A extensão monitora diferentes vetores de privacidade durante a navegação:
+
+| Área analisada | O que é verificado |
 |---|---|
-| **Terceiros** | Lista todos os domínios de terceira parte contactados e o tipo de recurso (script, imagem, iframe…) |
-| **Cookies** | Classifica cookies por origem (1ª/3ª parte), duração (sessão/persistente) e detecta supercookies via ETag e cookie syncing |
-| **Web Storage** | Exibe entradas de `localStorage`, `sessionStorage` e bancos `IndexedDB` com chave, tamanho e domínio |
-| **Fingerprinting** | Intercepta chamadas às APIs Canvas, WebGL e AudioContext usadas para browser fingerprinting |
-| **Hijacking** | Detecta scripts suspeitos de rastreadores conhecidos e redirecionamentos entre domínios |
-| **Privacy Score** | Pontuação 0–100 calculada a partir de todos os vetores acima, com detalhamento das penalidades |
+| **Domínios de terceiros** | Identifica domínios externos contactados pela página, como scripts, imagens, iframes e outros recursos |
+| **Cookies** | Classifica cookies entre primeira e terceira parte, além de diferenciar cookies de sessão e persistentes |
+| **Supercookies e cookie syncing** | Busca sinais de rastreamento mais persistente, como uso de ETags e sincronização de identificadores entre domínios |
+| **Web Storage** | Exibe dados armazenados em `localStorage`, `sessionStorage` e `IndexedDB`, incluindo chave, tamanho e domínio responsável |
+| **Fingerprinting** | Detecta chamadas a APIs frequentemente usadas para identificação do navegador, como Canvas, WebGL e AudioContext |
+| **Hijacking e redirects** | Sinaliza scripts externos suspeitos e redirecionamentos entre domínios que podem indicar comportamento abusivo |
+| **Privacy Score** | Calcula uma pontuação de privacidade da página com base nos riscos encontrados |
 
-## Instalação (modo desenvolvedor)
+## Como instalar no Firefox
 
-1. Abra o Firefox e acesse `about:debugging`
-2. Clique em **Este Firefox** → **Carregar extensão temporária**
-3. Selecione o arquivo `manifest.json` desta pasta
-4. A extensão aparecerá na barra de ferramentas com o ícone de escudo
+Como a extensão está em modo de desenvolvimento, ela deve ser carregada manualmente no Firefox:
 
-> Para instalação permanente, a extensão precisaria ser assinada pela Mozilla via [addons.mozilla.org](https://addons.mozilla.org).
+1. Abra o Firefox.
+2. Acesse `about:debugging`.
+3. Clique em "Este Firefox".
+4. Clique em "Carregar extensão temporária".
+5. Selecione o arquivo `manifest.json` dentro da pasta do projeto.
+6. O ícone da extensão aparecerá na barra de ferramentas do navegador.
 
-## Uso
+## Como usar
 
-1. Navegue até qualquer site
-2. Clique no ícone da extensão na barra de ferramentas
-3. Explore as abas:
-   - **Terceiros** — domínios externos contactados, número de requisições e tipo de recurso. Rastreadores conhecidos são destacados em vermelho
-   - **Cookies** — resumo em grade (1ª parte, 3ª parte, sessão, persistente, supercookies), lista de cookies individuais, cookie syncing detectado e supercookies via ETag
-   - **Storage** — chaves e tamanhos de `localStorage`/`sessionStorage` e nomes de bancos `IndexedDB`
-   - **Fingerprint** — indica se Canvas, WebGL ou AudioContext foram invocados com fins de identificação, além do detalhamento do Privacy Score
-   - **Hijacking** — scripts externos de domínios de rastreamento e redirecionamentos cross-domain
+Depois de instalar a extensão:
 
-## Metodologia do Privacy Score
+1. Acesse qualquer site.
+2. Clique no ícone da extensão na barra de ferramentas.
+3. Navegue pelas abas para visualizar os dados coletados.
 
-Ponto de partida: **100 pontos**. Penalidades são acumuladas conforme os vetores detectados:
+As principais abas são:
 
-| Vetor | Penalidade | Máximo |
-|---|---|---|
-| Cada domínio de terceira parte | −3 | −30 |
-| Cada rastreador conhecido | −5 | −15 |
-| Cada cookie de terceira parte | −3 | −15 |
-| Cada cookie persistente | −2 | −10 |
-| Cada supercookie (ETag) | −10 | −20 |
-| Cada sinal de cookie syncing | −5 | −10 |
-| Cada entrada no localStorage | −2 | −10 |
-| Cada entrada no sessionStorage | −1 | −5 |
-| Cada banco IndexedDB | −3 | −9 |
-| Canvas fingerprinting (único) | −15 | −15 |
-| WebGL fingerprinting (único) | −10 | −10 |
-| AudioContext fingerprinting (único) | −10 | −10 |
-| Cada script suspeito de hijacking | −10 | −20 |
-| Cada redirecionamento cross-domain | −15 | −15 |
+- **Terceiros**: mostra os domínios externos contactados pela página, a quantidade de requisições e o tipo de recurso carregado.
+- **Cookies**: apresenta cookies de primeira e terceira parte, cookies de sessão, cookies persistentes, possíveis supercookies e indícios de cookie syncing.
+- **Storage**: lista dados encontrados em `localStorage`, `sessionStorage` e `IndexedDB`.
+- **Fingerprint**: mostra chamadas a APIs como Canvas, WebGL e AudioContext, que podem ser usadas para identificar o navegador.
+- **Hijacking**: destaca scripts externos suspeitos e redirecionamentos entre domínios.
+- **Privacy Score**: resume os riscos encontrados em uma pontuação de 0 a 100.
 
-**Classificação:**
+## Como funciona o Privacy Score
 
-| Pontuação | Nível |
+O Privacy Score começa em **100 pontos**. Conforme a extensão encontra elementos que podem representar risco à privacidade, a pontuação é reduzida.
+
+A lógica usada foi construída considerando a severidade de cada técnica de rastreamento. Técnicas mais difíceis de perceber ou remover, como fingerprinting e supercookies, recebem penalidades maiores. Já elementos mais comuns, como domínios de terceiros e cookies, também reduzem a pontuação, mas de forma proporcional.
+
+| Vetor detectado | Penalidade | Limite máximo |
+|---|---:|---:|
+| Domínio de terceira parte | −3 | −30 |
+| Rastreador conhecido | −5 | −15 |
+| Cookie de terceira parte | −3 | −15 |
+| Cookie persistente | −2 | −10 |
+| Supercookie via ETag | −10 | −20 |
+| Sinal de cookie syncing | −5 | −10 |
+| Entrada em localStorage | −2 | −10 |
+| Entrada em sessionStorage | −1 | −5 |
+| Banco IndexedDB | −3 | −9 |
+| Uso de Canvas para fingerprinting | −15 | −15 |
+| Uso de WebGL para fingerprinting | −10 | −10 |
+| Uso de AudioContext para fingerprinting | −10 | −10 |
+| Script suspeito de hijacking | −10 | −20 |
+| Redirecionamento entre domínios | −15 | −15 |
+
+## Interpretação da pontuação
+
+| Pontuação | Classificação |
 |---|---|
-| 80–100 | Boa privacidade |
-| 50–79 | Privacidade moderada |
-| 20–49 | Privacidade ruim |
-| 0–19 | Privacidade crítica |
+| 80 a 100 | Boa privacidade |
+| 50 a 79 | Privacidade moderada |
+| 20 a 49 | Privacidade ruim |
+| 0 a 19 | Privacidade crítica |
 
-**Justificativa da metodologia:** cada vetor é ponderado pela sua severidade real como técnica de rastreamento. Fingerprinting recebe penalidade maior (−15/−10) pois é resistente a modo privativo e limpeza de cookies. Supercookies via ETag recebem −10 cada por serem persistentes e pouco conhecidas. Rastreadores conhecidos somam penalidade extra sobre a contagem de domínios pois representam ameaça comprovada.
+Essa pontuação não deve ser interpretada como uma verdade absoluta, mas como um indicador prático para comparar o comportamento de diferentes sites. O objetivo é tornar mais visível aquilo que normalmente acontece de forma silenciosa durante a navegação.
 
 ## Estrutura do projeto
 
-```
-├── manifest.json        Manifesto da extensão (MV2, Firefox)
-├── background.js        Coleta dados via webRequest e gerencia estado por aba
-├── content.js           Injeta interceptadores de API e coleta dados de storage
+```text
+├── manifest.json        Manifesto da extensão para Firefox
+├── background.js        Monitora requisições, cookies, redirects e dados por aba
+├── content.js           Coleta dados de storage e intercepta APIs de fingerprinting
 ├── popup/
-│   ├── popup.html       Interface do usuário
-│   ├── popup.js         Lógica de renderização e cálculo do Privacy Score
-│   └── popup.css        Estilos da interface
+│   ├── popup.html       Estrutura da interface da extensão
+│   ├── popup.js         Renderização dos dados e cálculo do Privacy Score
+│   └── popup.css        Estilos visuais da interface
 └── icons/
     └── icon.svg         Ícone da extensão
-```
-
-## Referências
-
-- [WebExtensions — MDN](https://developer.mozilla.org/pt-BR/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension)
-- [webRequest API — MDN](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webRequest)
-- [Cover Your Tracks — EFF](https://coveryourtracks.eff.org)
-- [Am I Unique?](https://amiunique.org)
